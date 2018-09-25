@@ -24,6 +24,11 @@ def showSelectedItem():
 
 # Create endpoints
 
+@app.route("/catalog/new")
+def createNewGameCategory():
+
+    return ""
+
 @app.route("/catalog/<string:item>/new")
 def createNewItem():
 
@@ -44,6 +49,11 @@ def editSelectedItem():
     return ""
 
 # API - Json
+
+@app.route("/catalog.json")
+def showContentInJson():
+
+    return ""
 
 if __name__ == '__main__':
     app.debug = True

@@ -13,7 +13,7 @@ class DbOperations:
         session.add(item)
         session.commit()
 
-    def removeRecord(self, game_id):
+    def removeRecordById(self, game_id):
         game = session.query(Game).filter_by(id = game_id).first()
         session.delete(game)
         session.commit()

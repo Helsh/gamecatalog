@@ -15,11 +15,9 @@
 
 
 <body>  
+  
+<!-- Google Sign In -->
 
-
-<!-- GOOGLE PLUS SIGN IN-->
-
-          
           <div id="signinButton">
           <span class="g-signin"
             data-scope="openid email"
@@ -51,7 +49,7 @@ function signInCallback(authResult) {
         if (result) {
           $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
          setTimeout(function() {
-          window.location.href = "/";
+          location.href = "/";
          }, 4000);
           
       } else if (authResult['error']) {
@@ -63,10 +61,6 @@ function signInCallback(authResult) {
       
   }); } }
 </script>
-
-
-
-<!--END GOOGLE PLUS SIGN IN -->
 
   </body>
 

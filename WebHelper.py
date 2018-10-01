@@ -8,6 +8,7 @@ class WebHelper:
         return state
 
     def generateJsonDump(self, description, error_code):
+        # Generic generation of json messages
         response = make_response(json.dumps(description), error_code)
         response.headers['Content-Type'] = 'application/json'
         return response

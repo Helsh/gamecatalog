@@ -18,8 +18,7 @@ class DbOperations:
         session.delete(game)
         session.commit()
 
-    # def showRecords(self, Type, filter=None, filter_data=None):
-    #     if filter == None and filter_data == None:
-    #         return session.query(Type).all()
-    #     else:
-    #         return session.query(Type).filter_by(filter = filter_data).all()
+    def findUserByEmail(self, user_email):
+        user = session.query(User).filter_by(email = user_email).first()
+        return user
+

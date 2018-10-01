@@ -105,9 +105,15 @@ def gconnect():
 
     ### Place for implementations
 
-    # Formatted output
-
-    output = "{}, {} {} \n {}{} {}".format('<h1>Welcome,', login_session['username'], '!</h1>', '<img src="', login_session['picture'], ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> ')
+    user = dbOperations.findUserByEmail(login_session['email'])
+    if user is None:
+        user = User(name=login_session['username'], email=login_session['email'])
+        dbOperations.addRecord(user)
+    elif user is not None:
+        output = "{} {} {} \n {}{} {}".format('<h1>Welcome,', user.name, '!</h1>', '<img src="', login_session['picture'], ' " style = "width: 150px; height: 150px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> ')
+    else:
+        output = 'An error regarding account occured.'
+    
     return output
 
 

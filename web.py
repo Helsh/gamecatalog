@@ -105,10 +105,10 @@ def gconnect():
 
     ### Place for implementations
 
-    user = dbOperations.findUserByEmail(login_session['email'])
+    user = dbOperations.findUserByEmail(login_session['email'], session)
     if user is None:
         user = User(name=login_session['username'], email=login_session['email'])
-        dbOperations.addRecord(user)
+        dbOperations.addRecord(user, session)
     elif user is not None:
         output = "{} {} {} \n {}{} {}".format('<h1>Welcome,', user.name, '!</h1>', '<img src="', login_session['picture'], ' " style = "width: 150px; height: 150px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> ')
     else:
@@ -160,31 +160,38 @@ def showSelectedGame():
 def createNewGameCategory():
     if request.method == 'POST':
         gameGategory = GameCategory(name=request.form["categoryname"])
-        dbOperations.addRecord(gameGategory)
+        dbOperations.addRecord(gameGategory, session)
         return redirect(url_for('showMainPage'))
     else:
         return render_template('newcategory.html')
 
 @app.route("/category/<string:gamecat_id>/new", methods=['GET', 'POST'])
 def createNewGame(gamecat_id):
-    if request.method == 'POST':
-        game = Game(name=request.form["gamename"], description=request.form["description"], user_id=0, gamecategory_id=gamecat_id)
-        dbOperations.addRecord(game)
-        return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
+    if login_session.get('email') is not None:
+        if request.method == 'POST':
+            user = dbOperations.findUserByEmail(login_session['email'], session)
+            game = Game(name=request.form["gamename"], description=request.form["description"], user_id=user.id, gamecategory_id=gamecat_id)
+            dbOperations.addRecord(game, session)
+            return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
+        else:
+            return render_template('newgame.html')
     else:
-        return render_template('newgame.html')
+        return render_template('nopermissions.html')
 
 # Delete endpoints
 
 @app.route("/games/<string:game_id>/delete", methods=['GET', 'POST'])
 def deleteSelectedGame(game_id):
-    if request.method == 'POST':
-        game = session.query(Game).filter_by(id = game_id).first()
-        gamecat_id = game.gamecategory_id
-        dbOperations.removeRecordById(game_id)
-        return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
+    if login_session.get('email') is not None:
+        if request.method == 'POST':
+            game = session.query(Game).filter_by(id = game_id).first()
+            gamecat_id = game.gamecategory_id
+            dbOperations.removeRecordById(game_id, session)
+            return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
+        else:
+            return render_template("deletegame.html")
     else:
-        return render_template("deletegame.html")
+        return render_template('nopermissions.html')
 
 # Update endpoints
 
@@ -195,8 +202,7 @@ def editSelectedItem(game_id):
         gamecat_id = game.gamecategory_id
         game.name = request.form["gamename"]
         game.description = request.form["description"]
-        session.add(game)
-        session.commit()
+        dbOperations.addRecord(game, session)
         return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
     else:
         return render_template("editgame.html")

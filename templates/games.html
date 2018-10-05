@@ -1,5 +1,14 @@
+<html>
+    <head>
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+    <body class="bg">
+        <ul>
 {% if games %}
     {% for game in games %}
-        <a href="{{url_for('showSelectedGame', game_id = game.id )}}">{{ game.name }}</a></br>
+        <li class="center"><a href="{{url_for('showSelectedGame', game_id = game.id )}}">{{ game.name }}</a></li>
     {% endfor %}
 {% endif %}
+        </ul>
+    </body>
+</html>

@@ -2,16 +2,17 @@
     <head>
         <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
     </head>
-    <body>
+    <body class="bg">
         <ul class="nav">
-            <li class="nav">Home</li>
-            <li class="nav"></li>
+            <li class="nav"><a href="{{url_for('showMainPage')}}">Home</a></li>
+            <li class="nav"><a href="{{url_for('logIn')}}">Login</a></li>
         </ul>
-        
+        <ul class="left">
 {% if categories %}
     {% for category in categories %}
-    <a href="{{url_for('showSelectedGames', gamecat_id = category.id )}}">{{ category.name }}</a></br><form action="{{url_for('createNewGame', gamecat_id = category.id )}}"><input type="submit" value="Add Game"></form>
+    <li class="left"><a href="{{url_for('showSelectedGames', gamecat_id = category.id )}}">{{ category.name }}</a><form action="{{url_for('createNewGame', gamecat_id = category.id )}}"><input type="submit" value="Add Game"></form></li>
     {% endfor %}
 {% endif %}
+        </ul>
     </body>
 </html>

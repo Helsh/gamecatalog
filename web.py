@@ -155,12 +155,13 @@ def showSelectedGames(gamecat_id):
 
 @app.route("/game/<string:game_id>")
 def showSelectedGame(game_id):
-    user = dbOperations.findUserByEmail(login_session['email'], session)
+    user = dbOperations.findUserByEmail(login_session.get('email'), session)
     game = session.query(Game).filter_by(id = game_id).first()
-    if user.id == game.user_id:
-        return render_template("authorizedgame.html", id = game_id, description = game.description, name = game.name)
-    else:
-        return render_template("game.html", id = game_id, description = game.description, name = game.name)
+    if user is not None:
+        if user.id == game.user_id:
+            return render_template("authorizedgame.html", id = game_id, description = game.description, name = game.name)
+   
+    return render_template("game.html", id = game_id, description = game.description, name = game.name)
 
 # Create endpoints
 

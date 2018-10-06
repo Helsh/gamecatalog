@@ -2,7 +2,7 @@
 
 #Imports
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask import session as login_session
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
@@ -239,10 +239,12 @@ def editSelectedItem(game_id):
 
 # API - Json
 
-@app.route("/category.json")
-def showContentInJson():
+@app.route("/category/<int:category_id>/games.json")
+def showContentInJson(category_id):
+    session = DBSession()
+    games = session.query(Game).filter_by(gamecategory_id = category_id)
 
-    return ""
+    return jsonify(games = [g.serialize for g in games])
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'

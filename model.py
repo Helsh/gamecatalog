@@ -30,6 +30,14 @@ class Game(Base):
     gamecategory_id = Column(Integer, ForeignKey('gamecategory.id'))
     gamecategory = relationship(GameCategory)
 
+    @property
+    def serialize(self):
+       return {
+           'name'         : self.name,
+           'description'  : self.description,
+           'id'           : self.id
+       }
+
 
 
 engine = create_engine('sqlite:///gamescatalog.db')

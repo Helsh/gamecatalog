@@ -3,6 +3,14 @@
         <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
     </head>
     <body class = "bg">
+            <ul class="nav">
+                    <li class="nav"><a href="{{url_for('showMainPage')}}">Home</a></li>
+                    {% if loginstate == None %}
+                    <li class="nav" style="float: right;"><a href="{{url_for('logIn')}}">Login</a></li>
+                    {% elif loginstate != None %}
+                    <li class="nav" style="float: right;"><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+                    {% endif %}
+                </ul>
     <form method="POST">
     EDIT</br>
         Game name:</br>

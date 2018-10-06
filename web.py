@@ -43,7 +43,7 @@ CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_i
 @app.route("/login")
 def logIn():
     login_session['state'] = webHelper.generateRandomClientId(64)
-    return render_template('login.html', STATE=login_session['state'])
+    return render_template('login.html', STATE=login_session['state'], loginstate = login_session.get('email'))
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -147,13 +147,13 @@ def gdisconnect():
 def showMainPage():
     session = DBSession()
     categories = session.query(GameCategory).all()
-    return render_template("index.html", categories = categories)
+    return render_template("index.html", categories = categories, loginstate = login_session.get('email'))
 
 @app.route("/category/<string:gamecat_id>/games")
 def showSelectedGames(gamecat_id):
     session = DBSession()
     games = session.query(Game).filter_by(gamecategory_id = gamecat_id).all()
-    return render_template("games.html", games = games)
+    return render_template("games.html", games = games, loginstate = login_session.get('email'))
 
 @app.route("/game/<string:game_id>")
 def showSelectedGame(game_id):
@@ -162,21 +162,24 @@ def showSelectedGame(game_id):
     game = session.query(Game).filter_by(id = game_id).first()
     if user is not None:
         if user.id == game.user_id:
-            return render_template("authorizedgame.html", id = game_id, description = game.description, name = game.name)
+            return render_template("authorizedgame.html", id = game_id, description = game.description, name = game.name, loginstate = login_session.get('email'))
    
-    return render_template("game.html", id = game_id, description = game.description, name = game.name)
+    return render_template("game.html", id = game_id, description = game.description, name = game.name, loginstate = login_session.get('email'))
 
 # Create endpoints
 
 @app.route("/category/new", methods=['GET', 'POST'])
 def createNewGameCategory():
-    if request.method == 'POST':
-        session = DBSession()
-        gameGategory = GameCategory(name=request.form["categoryname"])
-        dbOperations.addRecord(gameGategory, session)
-        return redirect(url_for('showMainPage'))
+    if login_session.get('email') is not None:
+        if request.method == 'POST':
+            session = DBSession()
+            gameGategory = GameCategory(name=request.form["categoryname"])
+            dbOperations.addRecord(gameGategory, session)
+            return redirect(url_for('showMainPage'))
+        else:
+            return render_template('newcategory.html', loginstate = login_session.get('email'))
     else:
-        return render_template('newcategory.html')
+        return render_template('nopermissions.html', loginstate = login_session.get('email'))
 
 @app.route("/category/<string:gamecat_id>/new", methods=['GET', 'POST'])
 def createNewGame(gamecat_id):
@@ -188,9 +191,9 @@ def createNewGame(gamecat_id):
             dbOperations.addRecord(game, session)
             return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
         else:
-            return render_template('newgame.html')
+            return render_template('newgame.html', loginstate = login_session.get('email'))
     else:
-        return render_template('nopermissions.html')
+        return render_template('nopermissions.html', loginstate = login_session.get('email'))
 
 # Delete endpoints
 
@@ -206,11 +209,11 @@ def deleteSelectedGame(game_id):
                 dbOperations.removeRecordById(game_id, session)
                 return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
             else:
-                return render_template("nopermissions.html")
+                return render_template("nopermissions.html", loginstate = login_session.get('email'))
         else:
-            return render_template("deletegame.html")
+            return render_template("deletegame.html", loginstate = login_session.get('email'))
     else:
-        return render_template('nopermissions.html')
+        return render_template('nopermissions.html', loginstate = login_session.get('email'))
 
 # Update endpoints
 
@@ -228,11 +231,11 @@ def editSelectedItem(game_id):
                 dbOperations.addRecord(game, session)
                 return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
             else:
-                return render_template("nopermissions.html")
+                return render_template("nopermissions.html", loginstate = login_session.get('email'))
         else:
-            return render_template("editgame.html")
+            return render_template("editgame.html", loginstate = login_session.get('email'))
     else:
-        return render_template('nopermissions.html')
+        return render_template('nopermissions.html', loginstate = login_session.get('email'))
 
 # API - Json
 

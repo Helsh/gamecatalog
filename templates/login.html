@@ -15,10 +15,19 @@
 
 
 <body class="bg">  
+    <ul class="nav">
+        <li class="nav"><a href="{{url_for('showMainPage')}}">Home</a></li>
+        {% if loginstate == None %}
+        <li class="nav" style="float: right;"><a href="{{url_for('logIn')}}">Login</a></li>
+        {% elif loginstate != None %}
+        <li class="nav" style="float: right;"><a href="{{url_for('gdisconnect')}}">Logout</a></li>
+        {% endif %}
+    </ul>
   
 <!-- Google Sign In -->
 
-          <div id="signinButton">
+          <div style="display: table; margin: 0 auto; margin-top: 50px">Choose provider to log in</div>
+          <div style = "display: table; margin: 0 auto; margin-top: 100px" id="signinButton">
           <span class="g-signin"
             data-scope="openid email"
             data-clientid="242881246685-staugoefo5fu5vuijaie6eucgmdorec3.apps.googleusercontent.com"
@@ -28,7 +37,7 @@
             data-callback="signInCallback"
             data-approvalprompt="force">
           </span>
-        </div>
+          </div>
 
 <div id="result"></div>
 

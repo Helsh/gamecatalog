@@ -29,7 +29,7 @@ engine = create_engine('sqlite:///gamescatalog.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
-session = DBSession()
+
 
 dbOperations = DbOperations()
 webHelper = WebHelper()
@@ -108,7 +108,7 @@ def gconnect():
     login_session['email'] = data['email']
 
     # Check whether is user. If not then create new one in db.
-
+    session = DBSession()
     user = dbOperations.findUserByEmail(login_session['email'], session)
     if user is None:
         user = User(name=login_session['username'], email=login_session['email'])
@@ -133,7 +133,7 @@ def gdisconnect():
     
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
-
+    
     if result['status'] == '200':
         # Clear data stored in session
         login_session.clear()
@@ -145,16 +145,19 @@ def gdisconnect():
 
 @app.route("/")
 def showMainPage():
+    session = DBSession()
     categories = session.query(GameCategory).all()
     return render_template("index.html", categories = categories)
 
 @app.route("/category/<string:gamecat_id>/games")
 def showSelectedGames(gamecat_id):
+    session = DBSession()
     games = session.query(Game).filter_by(gamecategory_id = gamecat_id).all()
     return render_template("games.html", games = games)
 
 @app.route("/game/<string:game_id>")
 def showSelectedGame(game_id):
+    session = DBSession()
     user = dbOperations.findUserByEmail(login_session.get('email'), session)
     game = session.query(Game).filter_by(id = game_id).first()
     if user is not None:
@@ -168,6 +171,7 @@ def showSelectedGame(game_id):
 @app.route("/category/new", methods=['GET', 'POST'])
 def createNewGameCategory():
     if request.method == 'POST':
+        session = DBSession()
         gameGategory = GameCategory(name=request.form["categoryname"])
         dbOperations.addRecord(gameGategory, session)
         return redirect(url_for('showMainPage'))
@@ -178,6 +182,7 @@ def createNewGameCategory():
 def createNewGame(gamecat_id):
     if login_session.get('email') is not None:
         if request.method == 'POST':
+            session = DBSession()
             user = dbOperations.findUserByEmail(login_session['email'], session)
             game = Game(name=request.form["gamename"], description=request.form["description"], user_id=user.id, gamecategory_id=gamecat_id)
             dbOperations.addRecord(game, session)
@@ -193,6 +198,7 @@ def createNewGame(gamecat_id):
 def deleteSelectedGame(game_id):
     if login_session.get('email') is not None:
         if request.method == 'POST':
+            session = DBSession()
             user = dbOperations.findUserByEmail(login_session['email'], session)
             game = session.query(Game).filter_by(id = game_id).first()
             if user.id == game.user_id:
@@ -212,6 +218,7 @@ def deleteSelectedGame(game_id):
 def editSelectedItem(game_id):
     if login_session.get('email') is not None:
         if request.method == 'POST':
+            session = DBSession()
             user = dbOperations.findUserByEmail(login_session['email'], session)
             game = session.query(Game).filter_by(id = game_id).first()
             if user.id == game.user_id:

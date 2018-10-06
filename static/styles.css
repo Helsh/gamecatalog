@@ -86,8 +86,19 @@ li.center a:hover:not(.active) {
     color: white;
 }
 
-li.center:last-child{
+li.center:last-child {
     list-style-type: none;
     text-align: center;
+}
+
+div.content {
+    background-color: #ffc3a0;
+    width: 400px;
+    border: 2px solid black;
+    padding: 25px;
+    margin-right: auto;
+    margin-left: auto;
+    text-align: center;
+    word-wrap: break-word;
 }
 

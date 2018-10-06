@@ -3,12 +3,17 @@
         <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
     </head>
     <body class = "bg">
-{{ name }} </br>
-</br>
-Description: </br>
-</br>
-{{ description }} </br>
-<form action="{{url_for('deleteSelectedGame', game_id = id)}}"><input type="submit" value="Delete"></form>
-<form action="{{url_for('editSelectedItem', game_id = id )}}"><input type="submit" value="Edit"></form>
+        <div class="content">
+            Game name: </br>
+            </br>
+            {{ name }} </br>
+            </br>
+            Description: </br>
+            </br>
+            {{ description }} </br>
+            </br>
+            <form action="{{url_for('editSelectedItem', game_id = id )}}"><input type="submit" value="Edit"></form>
+            <form action="{{url_for('deleteSelectedGame', game_id = id)}}"><input type="submit" value="Delete"></form>
+        </div>
     </body>
 </html>

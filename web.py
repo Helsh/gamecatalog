@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-#Imports
+# Imports
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask import session as login_session
@@ -36,14 +36,19 @@ webHelper = WebHelper()
 
 # Define Client ID
 
-CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
+CLIENT_ID = json.loads(open(
+    'client_secrets.json', 'r').read())['web']['client_id']
 
 # Login / Logout endpoints (Google Accounts)
+
 
 @app.route("/login")
 def logIn():
     login_session['state'] = webHelper.generateRandomClientId(64)
-    return render_template('login.html', STATE=login_session['state'], loginstate = login_session.get('email'))
+    return render_template(
+        'login.html', STATE=login_session['state'],
+        loginstate=login_session.get('email'))
+
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -60,10 +65,13 @@ def gconnect():
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
-        return webHelper.generateJsonDump('Failed to upgrade the authorization code.', 401)
+        return webHelper.generateJsonDump(
+            'Failed to upgrade the authorization code.', 401)
     # Check that the access token is valid.
     access_token = credentials.access_token
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}').format(access_token)
+    url = (
+        'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}'
+          ).format(access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1].decode('utf-8'))
     # If there was an error in the access token info, abort.
@@ -75,16 +83,19 @@ def gconnect():
     # Verify that the access token is used for the intended user.
     gplus_id = credentials.id_token['sub']
     if result['user_id'] != gplus_id:
-        return webHelper.generateJsonDump("Token's user ID doesn't match given user ID.", 401)
+        return webHelper.generateJsonDump(
+            "Token's user ID doesn't match given user ID.", 401)
 
     # Verify that the access token is valid for this app.
     if result['issued_to'] != CLIENT_ID:
-        return webHelper.generateJsonDump("Token's client ID does not match app's.", 401)
+        return webHelper.generateJsonDump(
+            "Token's client ID does not match app's.", 401)
 
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        return webHelper.generateJsonDump('Current user is already connected.', 200)
+        return webHelper.generateJsonDump(
+            'Current user is already connected.', 200)
 
     # Store the access token in the session for later use.
     login_session['access_token'] = credentials.access_token
@@ -111,13 +122,19 @@ def gconnect():
     session = DBSession()
     user = dbOperations.findUserByEmail(login_session['email'], session)
     if user is None:
-        user = User(name=login_session['username'], email=login_session['email'])
+        user = User(
+            name=login_session['username'], email=login_session['email'])
         dbOperations.addRecord(user, session)
     elif user is not None:
-        output = "{} {} {} \n {}{} {}".format('<h1>Welcome,', user.name, '!</h1>', '<img src="', login_session['picture'], ' " style = "width: 150px; height: 150px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> ')
+        output = "{} {} {} \n {}{} {}".format(
+            '<h1>Welcome,', user.name, '!</h1>',
+            '<img src="', login_session['picture'],
+            ' " style = "width: 150px; height: 150px;'
+            'border-radius: 150px;-webkit-border-radius: 150px;'
+            '-moz-border-radius: 150px;"> ')
     else:
         output = 'An error regarding account occured.'
-    
+
     return output
 
 
@@ -126,47 +143,63 @@ def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
         return webHelper.generateJsonDump('Current user not connected.', 401)
-    
+
     # Revoke current token
 
-    url = 'https://accounts.google.com/o/oauth2/revoke?token={}'.format(access_token)
-    
+    url = (
+        'https://accounts.google.com/o/oauth2/revoke?token={}'
+          ).format(access_token)
+
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
-    
+
     if result['status'] == '200':
         # Clear data stored in session
         login_session.clear()
         return webHelper.generateJsonDump('Successfully disconnected.', 200)
     else:
-        return webHelper.generateJsonDump('Failed to revoke token for given user.', 400)
+        return webHelper.generateJsonDump(
+            'Failed to revoke token for given user.', 400)
 
 # Read endpoints
+
 
 @app.route("/")
 def showMainPage():
     session = DBSession()
     categories = session.query(GameCategory).all()
-    return render_template("index.html", categories = categories, loginstate = login_session.get('email'))
+    return render_template(
+        "index.html", categories=categories, loginstate=login_session.get(
+            'email'))
+
 
 @app.route("/category/<string:gamecat_id>/games")
 def showSelectedGames(gamecat_id):
     session = DBSession()
-    games = session.query(Game).filter_by(gamecategory_id = gamecat_id).all()
-    return render_template("games.html", games = games, loginstate = login_session.get('email'))
+    games = session.query(
+        Game).filter_by(gamecategory_id=gamecat_id).all()
+    return render_template(
+        "games.html", games=games, loginstate=login_session.get('email'))
+
 
 @app.route("/game/<string:game_id>")
 def showSelectedGame(game_id):
     session = DBSession()
     user = dbOperations.findUserByEmail(login_session.get('email'), session)
-    game = session.query(Game).filter_by(id = game_id).first()
+    game = session.query(Game).filter_by(id=game_id).first()
     if user is not None:
         if user.id == game.user_id:
-            return render_template("authorizedgame.html", id = game_id, description = game.description, name = game.name, loginstate = login_session.get('email'))
-   
-    return render_template("game.html", id = game_id, description = game.description, name = game.name, loginstate = login_session.get('email'))
+            return render_template(
+                "authorizedgame.html", id=game_id,
+                description=game.description, name=game.name,
+                loginstate=login_session.get('email'))
+
+    return render_template(
+        "game.html", id=game_id, description=game.description,
+        name=game.name, loginstate=login_session.get('email'))
 
 # Create endpoints
+
 
 @app.route("/category/new", methods=['GET', 'POST'])
 def createNewGameCategory():
@@ -177,76 +210,101 @@ def createNewGameCategory():
             dbOperations.addRecord(gameGategory, session)
             return redirect(url_for('showMainPage'))
         else:
-            return render_template('newcategory.html', loginstate = login_session.get('email'))
+            return render_template(
+                'newcategory.html', loginstate=login_session.get('email'))
     else:
-        return render_template('nopermissions.html', loginstate = login_session.get('email'))
+        return render_template(
+            'nopermissions.html', loginstate=login_session.get('email'))
+
 
 @app.route("/category/<string:gamecat_id>/new", methods=['GET', 'POST'])
 def createNewGame(gamecat_id):
     if login_session.get('email') is not None:
         if request.method == 'POST':
             session = DBSession()
-            user = dbOperations.findUserByEmail(login_session['email'], session)
-            game = Game(name=request.form["gamename"], description=request.form["description"], user_id=user.id, gamecategory_id=gamecat_id)
+            user = dbOperations.findUserByEmail(
+                login_session['email'], session)
+            game = Game(
+                name=request.form["gamename"],
+                description=request.form["description"], user_id=user.id,
+                gamecategory_id=gamecat_id)
             dbOperations.addRecord(game, session)
-            return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
+            return redirect(url_for(
+                'showSelectedGames', gamecat_id=gamecat_id))
         else:
-            return render_template('newgame.html', loginstate = login_session.get('email'))
+            return render_template(
+                'newgame.html', loginstate=login_session.get('email'))
     else:
-        return render_template('nopermissions.html', loginstate = login_session.get('email'))
+        return render_template(
+            'nopermissions.html', loginstate=login_session.get('email'))
 
 # Delete endpoints
+
 
 @app.route("/games/<string:game_id>/delete", methods=['GET', 'POST'])
 def deleteSelectedGame(game_id):
     if login_session.get('email') is not None:
         if request.method == 'POST':
             session = DBSession()
-            user = dbOperations.findUserByEmail(login_session['email'], session)
-            game = session.query(Game).filter_by(id = game_id).first()
+            user = dbOperations.findUserByEmail(
+                login_session['email'], session)
+            game = session.query(Game).filter_by(id=game_id).first()
             if user.id == game.user_id:
                 gamecat_id = game.gamecategory_id
                 dbOperations.removeRecordById(game_id, session)
-                return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
+                return redirect(url_for(
+                    'showSelectedGames', gamecat_id=gamecat_id))
             else:
-                return render_template("nopermissions.html", loginstate = login_session.get('email'))
+                return render_template(
+                    "nopermissions.html",
+                    loginstate=login_session.get('email'))
         else:
-            return render_template("deletegame.html", loginstate = login_session.get('email'))
+            return render_template(
+                "deletegame.html", loginstate=login_session.get('email'))
     else:
-        return render_template('nopermissions.html', loginstate = login_session.get('email'))
+        return render_template(
+            'nopermissions.html', loginstate=login_session.get('email'))
 
 # Update endpoints
+
 
 @app.route("/games/<string:game_id>/edit", methods=['GET', 'POST'])
 def editSelectedItem(game_id):
     if login_session.get('email') is not None:
         if request.method == 'POST':
             session = DBSession()
-            user = dbOperations.findUserByEmail(login_session['email'], session)
-            game = session.query(Game).filter_by(id = game_id).first()
+            user = dbOperations.findUserByEmail(
+                login_session['email'], session)
+            game = session.query(Game).filter_by(id=game_id).first()
             if user.id == game.user_id:
                 gamecat_id = game.gamecategory_id
                 game.name = request.form["gamename"]
                 game.description = request.form["description"]
                 dbOperations.addRecord(game, session)
-                return redirect(url_for('showSelectedGames', gamecat_id = gamecat_id))
+                return redirect(url_for(
+                    'showSelectedGames', gamecat_id=gamecat_id))
             else:
-                return render_template("nopermissions.html", loginstate = login_session.get('email'))
+                return render_template(
+                    "nopermissions.html",
+                    loginstate=login_session.get('email'))
         else:
-            return render_template("editgame.html", loginstate = login_session.get('email'))
+            return render_template(
+                "editgame.html", loginstate=login_session.get('email'))
     else:
-        return render_template('nopermissions.html', loginstate = login_session.get('email'))
+        return render_template(
+            'nopermissions.html', loginstate=login_session.get('email'))
 
 # API - Json
+
 
 @app.route("/category/<int:category_id>/games.json")
 def showContentInJson(category_id):
     session = DBSession()
-    games = session.query(Game).filter_by(gamecategory_id = category_id)
+    games = session.query(Game).filter_by(gamecategory_id=category_id)
 
-    return jsonify(games = [g.serialize for g in games])
+    return jsonify(games=[g.serialize for g in games])
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
-    app.run(host = '0.0.0.0', port = 8000)
+    app.run(host='0.0.0.0', port=8000)

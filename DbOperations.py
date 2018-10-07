@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from model import Base, User, Game, GameCategory

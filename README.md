@@ -23,6 +23,7 @@ Games Catalog is a project developed for Udacity course. This project is a simpl
 
 - Go to the main catalog.
 - Type: python3/python web.py
+- To create new database please run model.py (python3/python model.py)
 
 ## Project structure
 

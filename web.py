@@ -121,12 +121,20 @@ def gconnect():
     # Check whether is user. If not then create new one in db.
     session = DBSession()
     user = dbOperations.findUserByEmail(login_session['email'], session)
+    output = ""
     if user is None:
         user = User(
             name=login_session['username'], email=login_session['email'])
         dbOperations.addRecord(user, session)
+        output += "{} {} {} \n {}{} {}".format(
+            '<div style="display:table; margin: 0 auto;">'
+            '<h1>Welcome,', user.name, '!</h1>',
+            '<img src="', login_session['picture'],
+            ' " style = "width: 150px; height: 150px;'
+            'border-radius: 150px;-webkit-border-radius: 150px;'
+            '-moz-border-radius: 150px;> </div>"')
     elif user is not None:
-        output = "{} {} {} \n {}{} {}".format(
+        output += "{} {} {} \n {}{} {}".format(
             '<div style="display:table; margin: 0 auto;">'
             '<h1>Welcome,', user.name, '!</h1>',
             '<img src="', login_session['picture'],
@@ -134,7 +142,7 @@ def gconnect():
             'border-radius: 150px;-webkit-border-radius: 150px;'
             '-moz-border-radius: 150px;> </div>"')
     else:
-        output = 'An error regarding account occured.'
+        output += 'An error regarding account occured.'
 
     return output
 
@@ -304,6 +312,7 @@ def showContentInJson(category_id):
     games = session.query(Game).filter_by(gamecategory_id=category_id)
 
     return jsonify(games=[g.serialize for g in games])
+
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'

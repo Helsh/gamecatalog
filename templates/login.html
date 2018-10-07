@@ -44,9 +44,9 @@
 <script>
 function signInCallback(authResult) {
   if (authResult['code']) {
-    // Hide the sign-in button now that the user is authorized
+    // Hide google's button
     $('#signinButton').attr('style', 'display: none');
-    // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
+    // Send one-time use code and if it's ok then return to main page
     $.ajax({
       type: 'POST',
       url: '/gconnect?state={{STATE}}',
@@ -54,7 +54,7 @@ function signInCallback(authResult) {
       data: authResult['code'],
       contentType: 'application/octet-stream; charset=utf-8',
       success: function(result) {
-        // Handle or verify the server response if necessary.
+        // This code depending result of ajax call will show what gconnect endpoint returns in output or error which occured
         if (result) {
           $('#result').html('<div style="display:table; margin: 0 auto">' + result + '</br></br></br>Redirecting...</div>')
          setTimeout(function() {

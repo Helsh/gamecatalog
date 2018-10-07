@@ -5,7 +5,8 @@ Games Catalog is a project developed for Udacity course. This project is a simpl
 
 - Vagrant (+ download Vagrantfile from [Github](https://github.com/udacity/fullstack-nanodegree-vm/tree/master/vagrant))
 - Google account (for purpose of testing OAuth2 authentication)
-- Replace CLIENT_ID with your own one in web.py (you should import Google secrets json file as "client_secrets.json and put in main folder where web.py is placed), login.html (where sign-in button is placed, there is option called data-clientid which should be replaced)
+- Replace CLIENT_ID with your own one in web.py (you should import Google secrets json file as **client_secrets.json** and put in main folder where **web.py** is placed), **login.html** (where sign-in button is placed, there is option called data-clientid which should be replaced). 
+[Here](https://console.developers.google.com/apis) you can obtain your own secrets file with your own ClientID.
 
 ## Frameworks:
 

@@ -127,11 +127,12 @@ def gconnect():
         dbOperations.addRecord(user, session)
     elif user is not None:
         output = "{} {} {} \n {}{} {}".format(
+            '<div style="display:table; margin: 0 auto;">'
             '<h1>Welcome,', user.name, '!</h1>',
             '<img src="', login_session['picture'],
             ' " style = "width: 150px; height: 150px;'
             'border-radius: 150px;-webkit-border-radius: 150px;'
-            '-moz-border-radius: 150px;"> ')
+            '-moz-border-radius: 150px;> </div>"')
     else:
         output = 'An error regarding account occured.'
 

@@ -318,7 +318,7 @@ def showContentInJson(category_id):
 @app.route("/games/<int:game_id>/game.json")
 def showGameInJson(game_id):
     session = DBSession()
-    game = session.query(Game).filter_by(id = game_id).first()
+    game = session.query(Game).filter_by(id=game_id).first()
 
     return jsonify(game.serialize)
 

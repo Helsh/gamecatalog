@@ -315,6 +315,14 @@ def showContentInJson(category_id):
     return jsonify(games=[g.serialize for g in games])
 
 
+@app.route("/games/<int:game_id>/game.json")
+def showGameInJson(game_id):
+    session = DBSession()
+    game = session.query(Game).filter_by(id = game_id).first()
+
+    return jsonify(game.serialize)
+
+
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True

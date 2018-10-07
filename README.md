@@ -18,6 +18,7 @@ Games Catalog is a project developed for Udacity course. This project is a simpl
 
 - localhost:8000/category/new allows every logged user to create new game category
 - localhost:8000/category/id/games.json where id is a game category id, if it exists then it will show you json output with every game created in the category
+- localhost:8000/games/id/game.json where id is a game id, if it exists then it will return json output with game which id you provided
 
 ## How to run
 
